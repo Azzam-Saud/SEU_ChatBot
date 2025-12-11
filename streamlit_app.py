@@ -181,9 +181,10 @@ def llm_answer(query, results):
 # STREAMLIT UI
 st.title("SEU Chatbot")
 
-FAQ_DIR = st.text_input("📁 مسار مجلد FAQ", r"D:\Azzam\Personal_Projects\SEU\filtered_data\FAQ")
-DOCS_DIR = st.text_input("📁 مسار مجلد Docs", r"D:\Azzam\Personal_Projects\SEU\filtered_data\Docs")
-
+# FAQ_DIR = st.text_input("📁 مسار مجلد FAQ", r"D:\Azzam\Personal_Projects\SEU\filtered_data\FAQ")
+# DOCS_DIR = st.text_input("📁 مسار مجلد Docs", r"D:\Azzam\Personal_Projects\SEU\filtered_data\Docs")
+FAQ_DIR = st.text_input("📁 مجلد FAQ", "FAQ")
+DOCS_DIR = st.text_input("📁 مجلد Docs", "Docs")
 if st.button("بناء قاعدة المعرفة"):
     with st.spinner("جاري بناء قاعدة البيانات من الملفات..."):
 
@@ -230,3 +231,4 @@ if st.button("إرسال"):
             st.write(f"**{r['id']}** — Score: {r['score']}")
             st.write(r["text"])
             st.write("---")
+
