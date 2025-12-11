@@ -7,6 +7,34 @@ import faiss
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from openai import OpenAI
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+
+# Google Drive Authentication
+def load_drive():
+    gauth = GoogleAuth()
+    gauth.settings.update({
+        "client_config": {
+            "client_id": st.secrets["google_oauth"]["client_id"],
+            "client_secret": st.secrets["google_oauth"]["client_secret"],
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://accounts.google.com/o/oauth2/token",
+            "redirect_uris": ["urn:ietf:wg:oauth:2.0:oob", "http://localhost"],
+        }
+    })
+    gauth.LocalWebserverAuth()
+    drive = GoogleDrive(gauth)
+    return drive
+def download_folder(drive, folder_id, local_path):
+    if not os.path.exists(local_path):
+        os.makedirs(local_path)
+
+    file_list = drive.ListFile({'q': f"'{folder_id}' in parents and trashed=false"}).GetList()
+
+    for file in file_list:
+        fname = os.path.join(local_path, file['title'])
+        file.GetContentFile(fname)
+        print("Downloaded:", fname)
 
 # client = OpenAI(api_key=)   
 api_key = st.secrets.get("OPENAI_API_KEY")
@@ -185,9 +213,15 @@ st.title("SEU Chatbot")
 # DOCS_DIR = st.text_input("📁 مسار مجلد Docs", r"D:\Azzam\Personal_Projects\SEU\filtered_data\Docs")
 FAQ_DIR = st.text_input("📁 مجلد FAQ", "FAQ")
 DOCS_DIR = st.text_input("📁 مجلد Docs", "Docs")
+
 if st.button("بناء قاعدة المعرفة"):
     with st.spinner("جاري بناء قاعدة البيانات من الملفات..."):
-
+        with st.spinner("Downloading files from Google Drive..."):
+            drive = load_drive()
+            download_folder(drive, FAQ_DRIVE_ID, "FAQ")
+            download_folder(drive, DOCS_DRIVE_ID, "Docs")
+    
+        st.success("تم تحميل جميع الملفات من Google Drive!")
         records = process_dir(FAQ_DIR)
         records += process_dir(DOCS_DIR)
 
@@ -231,4 +265,5 @@ if st.button("إرسال"):
             st.write(f"**{r['id']}** — Score: {r['score']}")
             st.write(r["text"])
             st.write("---")
+
 
