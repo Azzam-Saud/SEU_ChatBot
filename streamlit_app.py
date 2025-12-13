@@ -1,8 +1,8 @@
+import os
 import streamlit as st
 from pinecone import Pinecone
 from sentence_transformers import SentenceTransformer
 from openai import OpenAI
-import os
 
 PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
 OPENAI_API_KEY   = os.environ.get("OPENAI_API_KEY")
@@ -102,4 +102,5 @@ if st.button("إرسال"):
                 st.write(f"**{r['source']}** — Score: {r['score']:.3f}")
                 st.write(r["text"][:700])
                 st.write("---")
+
 
