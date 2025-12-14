@@ -7,9 +7,6 @@ from openai import OpenAI
 PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
 OPENAI_API_KEY   = os.environ.get("OPENAI_API_KEY")
 
-# =========================
-# Clients
-# =========================
 pc = Pinecone(api_key=PINECONE_API_KEY)
 index = pc.Index("seu-chatbot")
 
@@ -19,9 +16,6 @@ model = SentenceTransformer(
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# =========================
-# Pinecone Search
-# =========================
 def pinecone_search(query, k=5):
     q_emb = model.encode(query).tolist()
 
@@ -41,9 +35,7 @@ def pinecone_search(query, k=5):
 
     return results
 
-# =========================
 # RAG + LLM
-# =========================
 def build_context(results):
     ctx = ""
     for r in results:
@@ -76,12 +68,9 @@ def answer_with_llm(query, results):
 
     return response.choices[0].message.content
 
-# =========================
-# Streamlit UI
-# =========================
 st.set_page_config(page_title="SEU Chatbot", page_icon="🎓")
 
-st.title("🎓 SEU Chatbot (Pinecone RAG)")
+st.title("SEU Chatbot")
 
 query = st.text_input("اكتب سؤالك هنا")
 
@@ -96,11 +85,12 @@ if st.button("إرسال"):
         st.subheader("الإجابة")
         st.write(answer)
 
-        st.markdown("---")
-        with st.expander("📄 النصوص المستخدمة"):
-            for r in results:
-                st.write(f"**{r['source']}** — Score: {r['score']:.3f}")
-                st.write(r["text"][:700])
-                st.write("---")
+        # st.markdown("---")
+        # with st.expander("📄 النصوص المستخدمة"):
+        #     for r in results:
+        #         st.write(f"**{r['source']}** — Score: {r['score']:.3f}")
+        #         st.write(r["text"][:700])
+        #         st.write("---")
+
 
 
