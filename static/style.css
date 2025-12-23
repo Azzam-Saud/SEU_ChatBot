@@ -1,0 +1,41 @@
+.message.bot {
+  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  color: #e5e7eb;
+  padding: 18px 22px;
+  border-radius: 18px;
+  max-width: 85%;
+  line-height: 1.8;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  margin-bottom: 14px;
+  font-size: 15.5px;
+}
+
+/* عناوين داخل الإجابة */
+.message.bot strong,
+.message.bot b {
+  color: #a5b4fc;
+  font-weight: 700;
+}
+
+/* القوائم */
+.message.bot ul {
+  margin-top: 10px;
+  padding-right: 20px;
+}
+
+.message.bot li {
+  margin-bottom: 6px;
+  list-style: "• ";
+}
+
+/* فقرات */
+.message.bot p {
+  margin-bottom: 10px;
+}
+
+/* فواصل */
+.message.bot hr {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  margin: 14px 0;
+}

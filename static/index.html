@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>SEU Intelligent Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Cairo", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #1a1f71, #5f2c82);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .chat-container {
+      width: 420px;
+      max-width: 95%;
+      height: 600px;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 16px;
+      text-align: center;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.15);
+      font-weight: 700;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .message {
+      max-width: 85%;
+      margin-bottom: 14px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      line-height: 1.7;
+      font-size: 14px;
+      animation: fadeIn 0.25s ease-in;
+    }
+
+    .user {
+      margin-left: auto;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .bot {
+      margin-right: auto;
+      background: rgba(255, 255, 255, 0.95);
+      color: #1f2937;
+      border-bottom-left-radius: 4px;
+    }
+
+    .bot p {
+      margin: 0 0 8px;
+    }
+
+    .bot ul {
+      margin: 8px 0;
+      padding-right: 18px;
+    }
+
+    .bot li {
+      margin-bottom: 6px;
+    }
+
+    .chat-input {
+      display: flex;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .chat-input button {
+      margin-right: 10px;
+      padding: 0 18px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      font-weight: 600;
+    }
+
+    .typing {
+      font-size: 13px;
+      opacity: 0.7;
+      font-style: italic;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="chat-container">
+  <div class="chat-header">🎓 SEU Assistant</div>
+
+  <div class="chat-messages" id="messages"></div>
+
+  <div class="chat-input">
+    <input id="question" placeholder="اكتب سؤالك هنا..." />
+    <button onclick="send()">إرسال</button>
+  </div>
+</div>
+
+<script>
+function formatAnswer(text) {
+  const lines = text
+    .split("\n")
+    .map(l => l.trim())
+    .filter(l => l.length > 0);
+
+  // لو فيه تعداد واضح
+  if (lines.length >= 4) {
+    return `
+      <ul>
+        ${lines.map(l => `<li>${l}</li>`).join("")}
+      </ul>
+    `;
+  }
+
+  // غير كذا → فقرات
+  return lines.map(l => `<p>${l}</p>`).join("");
+}
+
+async function send() {
+  const input = document.getElementById("question");
+  const text = input.value.trim();
+  if (!text) return;
+
+  const messages = document.getElementById("messages");
+
+  messages.innerHTML += `<div class="message user">${text}</div>`;
+  input.value = "";
+
+  const typing = document.createElement("div");
+  typing.className = "message bot typing";
+  typing.innerText = "⏳ جاري البحث عن الإجابة...";
+  messages.appendChild(typing);
+  messages.scrollTop = messages.scrollHeight;
+
+  try {
+    const res = await fetch("/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: text })
+    });
+
+    const data = await res.json();
+    typing.remove();
+
+    messages.innerHTML += `
+      <div class="message bot">
+        ${formatAnswer(data.answer)}
+      </div>
+    `;
+    messages.scrollTop = messages.scrollHeight;
+
+  } catch (e) {
+    typing.innerText = "❌ حدث خطأ، حاول مرة أخرى";
+  }
+}
+</script>
+
+</body>
+</html>
